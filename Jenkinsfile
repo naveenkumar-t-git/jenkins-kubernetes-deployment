@@ -41,7 +41,6 @@ pipeline {
       steps {
         script {
           sh 'kubectl create -f deployment.yaml'
-          #kubernetesDeploy(configs: "deployment.yaml", "service.yaml")
         }
       }
     }
