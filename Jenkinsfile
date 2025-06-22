@@ -33,7 +33,7 @@ spec:
     }
 
     environment {
-        DOCKER_IMAGE = "naveenkumart55/“jenkins_test
+        DOCKER_IMAGE = "naveenkumart55/jenkins_test"
         IMAGE_TAG = "latest"
     }
 
