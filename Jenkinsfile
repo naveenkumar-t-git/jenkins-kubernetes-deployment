@@ -36,8 +36,8 @@ spec:
         DOCKER_IMAGE = "naveenkumart55/jenkins_test"
         IMAGE_TAG = "latest"
     }
-
-
+    
+ stages {
         stage('Docker Build & Push') {
             steps {
                 container('docker') {
@@ -64,3 +64,4 @@ spec:
             }
         }
     }
+}
