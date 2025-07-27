@@ -1,4 +1,23 @@
 pipeline {
+    environment {
+        KUBECONFIG = "${WORKSPACE}/kubeconfig"
+        DOCKER_IMAGE = "naveenkumart55/jenkins_test"
+        IMAGE_TAG = "latest"
+    }
+
+    stages {
+        stage('Use kubeconfig') {
+            steps {
+                withCredentials([file(credentialsId: 'kubeconfig-prod', variable: 'KUBECONFIG')]) {
+                    sh '''
+                        echo "Using kubeconfig at $KUBECONFIG"
+                        kubectl config get-contexts
+                        kubectl get namespaces
+                    '''
+                }
+            }
+        }
+    }
     agent {
         kubernetes {
             label 'my-k8s-agent'
@@ -30,11 +49,6 @@ spec:
         path: /var/run/docker.sock
 """
         }
-    }
-
-    environment {
-        DOCKER_IMAGE = "naveenkumart55/jenkins_test"
-        IMAGE_TAG = "latest"
     }
     
  stages {
