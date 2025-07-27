@@ -1,27 +1,8 @@
 pipeline {
-    environment {
-        KUBECONFIG = "${WORKSPACE}/kubeconfig"
-        DOCKER_IMAGE = "naveenkumart55/jenkins_test"
-        IMAGE_TAG = "latest"
-    }
-
-    stages {
-        stage('Use kubeconfig') {
-            steps {
-                withCredentials([file(credentialsId: 'kubeconfig-prod', variable: 'KUBECONFIG')]) {
-                    sh '''
-                        echo "Using kubeconfig at $KUBECONFIG"
-                        kubectl config get-contexts
-                        kubectl get namespaces
-                    '''
-                }
-            }
-        }
     agent {
         kubernetes {
             label 'my-k8s-agent'
             defaultContainer 'jnlp'
-
             yaml """
 apiVersion: v1
 kind: Pod
@@ -49,7 +30,28 @@ spec:
 """
         }
     }
-    
+
+    environment {
+        DOCKER_IMAGE = "naveenkumart55/jenkins_test"
+        IMAGE_TAG = "latest"
+    }
+
+    stages {
+        stage('Use kubeconfig') {
+            steps {
+                container('kubectl') {
+                    withCredentials([file(credentialsId: 'kubeconfig-prod', variable: 'KUBECONFIG')]) {
+                        sh '''
+                            echo "Using kubeconfig at $KUBECONFIG"
+                            export KUBECONFIG=$KUBECONFIG
+                            kubectl config get-contexts
+                            kubectl get namespaces
+                        '''
+                    }
+                }
+            }
+        }
+
         stage('Docker Build & Push') {
             steps {
                 container('docker') {
@@ -67,11 +69,14 @@ spec:
         stage('K8s Deploy') {
             steps {
                 container('kubectl') {
-                    sh '''
-                        kubectl version --client
-                        # Replace with actual deploy command
-                        # kubectl apply -f k8s/deployment.yaml
-                    '''
+                    withCredentials([file(credentialsId: 'kubeconfig-prod', variable: 'KUBECONFIG')]) {
+                        sh '''
+                            export KUBECONFIG=$KUBECONFIG
+                            kubectl version --client
+                            # Replace with actual deploy command:
+                            # kubectl apply -f k8s/deployment.yaml
+                        '''
+                    }
                 }
             }
         }
