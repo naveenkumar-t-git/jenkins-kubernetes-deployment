@@ -17,7 +17,6 @@ pipeline {
                 }
             }
         }
-    }
     agent {
         kubernetes {
             label 'my-k8s-agent'
@@ -51,7 +50,6 @@ spec:
         }
     }
     
- stages {
         stage('Docker Build & Push') {
             steps {
                 container('docker') {
